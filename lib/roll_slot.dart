@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:roll_slot_machine/roll_slot_controller.dart';
 
 typedef void SelectedItemCallback({
   @required int currentIndex,
@@ -8,7 +9,7 @@ typedef void SelectedItemCallback({
 });
 
 class RollSlot extends StatefulWidget {
-  final GlobalKey<RollSlotState> rollSlotController;
+  final RollSlotController rollSlotController;
 
   final List<Widget> children;
   final Duration duration;
@@ -29,6 +30,8 @@ class RollSlot extends StatefulWidget {
 
   final bool additionalListToEndAndStart;
 
+  final EdgeInsets itemPadding;
+
   const RollSlot({
     Key key,
     @required this.itemExtend,
@@ -43,13 +46,14 @@ class RollSlot extends StatefulWidget {
     this.onItemSelected,
     this.shuffleList = true,
     this.additionalListToEndAndStart = true,
-  }) : super(key: rollSlotController);
+    this.itemPadding = const EdgeInsets.all(8.0),
+  }) : super(key: key);
 
   @override
-  RollSlotState createState() => RollSlotState();
+  _RollSlotState createState() => _RollSlotState();
 }
 
-class RollSlotState extends State<RollSlot> {
+class _RollSlotState extends State<RollSlot> {
   ScrollController _controller = ScrollController();
   List<Widget> currentList = [];
   int currentIndex = 0;
@@ -57,8 +61,44 @@ class RollSlotState extends State<RollSlot> {
   @override
   void initState() {
     shuffleAndFillTheList();
+    addRollSlotControllerListener();
     addListenerScrollController();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListWheelScrollView(
+      physics: BouncingScrollPhysics(),
+      itemExtent: widget.itemExtend,
+      diameterRatio: widget.diameterRation,
+      controller: _controller,
+      squeeze: widget.squeeze,
+      perspective: widget.perspective,
+      children: currentList.map((_widget) {
+        return Padding(
+          padding: widget.itemPadding,
+          child: _widget,
+        );
+      }).toList(),
+    );
+  }
+
+  void addRollSlotControllerListener() {
+    if (widget.rollSlotController != null) {
+      widget.rollSlotController.addListener(() {
+        if (widget.rollSlotController.state ==
+            RollSlotControllerState.animateRandomly) {
+          animateToRandomly();
+        }
+      });
+    }
   }
 
   void addListenerScrollController() {
@@ -96,6 +136,23 @@ class RollSlotState extends State<RollSlot> {
     }
   }
 
+  /// Gets the [randomIndex] an animate the [RollSlot] to that item
+  Future<void> animateToRandomly() async {
+    int random = randomIndex();
+    await _controller.animateTo(
+      random * widget.itemExtend,
+      curve: Curves.elasticInOut,
+      duration: widget.duration * (1 / widget.speed),
+    );
+    if (widget.rollSlotController != null) {
+      widget.rollSlotController.currentIndex = random % widget.children.length;
+    }
+  }
+
+  /// When [additionalListToEndAndStart] is true,
+  /// This method adds the [widget.children] to beginning and end of the list
+  ///
+  /// for being able to show items if the random number hits edge cases
   void addToCurrentList() {
     setState(() {
       if (widget.shuffleList) {
@@ -106,18 +163,14 @@ class RollSlotState extends State<RollSlot> {
     });
   }
 
-  void animateToRandomly() {
-    _controller.animateTo(
-      randomIndex() * widget.itemExtend,
-      curve: Curves.elasticInOut,
-      duration: widget.duration * (1 / widget.speed),
-    );
-  }
-
+  /// Helping to jump the first item that can be random.
+  ///
+  /// It is using only when the [additionalListToEndAndStart] is true.
   void jump() {
     _controller.jumpTo(widget.itemExtend * widget.children.length);
   }
 
+  /// Returns a random number.
   int randomIndex() {
     int randomInt;
     if (widget.additionalListToEndAndStart)
@@ -126,30 +179,5 @@ class RollSlotState extends State<RollSlot> {
     else
       randomInt = Random().nextInt(currentList.length);
     return randomInt == currentIndex ? randomIndex() : randomInt;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListWheelScrollView(
-      physics: BouncingScrollPhysics(),
-      itemExtent: widget.itemExtend,
-      diameterRatio: widget.diameterRation,
-      controller: _controller,
-      squeeze: widget.squeeze,
-      perspective: widget.perspective,
-      children: currentList.map((widget) {
-        return widget;
-      }).toList(),
-      onSelectedItemChanged: (selectedIndex) {
-        print('herre');
-        print('selected inddex : $selectedIndex');
-      },
-    );
   }
 }

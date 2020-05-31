@@ -1,6 +1,5 @@
-# roll_slot_machine
-
-Flutter package for randoming with roll slot machine
+# RollSlotMachine (under development)
+Detail usage will be added later but you can check the example project
 
 ## Getting Started
 
