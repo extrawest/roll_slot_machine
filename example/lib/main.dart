@@ -153,13 +153,76 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           children: [
             Flexible(
-              child: getRollSlot(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RollSlot(
+                          duration: Duration(milliseconds: 10000),
+                          itemExtend: 300,
+                          shuffleList: false,
+                          rollSlotController: _rollSlotController,
+                          children: emojiList.map(
+                                (e) {
+                              return BuildItem(
+                                emoji: e,
+                              );
+                            },
+                          ).toList()),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Flexible(
-              child: getRollSlot(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RollSlot(
+                          duration: Duration(milliseconds: 10000),
+                          itemExtend: 300,
+                          shuffleList: false,
+                          rollSlotController: _rollSlotController,
+                          children: emojiList.map(
+                                (e) {
+                              return BuildItem(
+                                emoji: e,
+                              );
+                            },
+                          ).toList()),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Flexible(
-              child: getRollSlot(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RollSlot(
+                          duration: Duration(milliseconds: 10000),
+                          itemExtend: 300,
+                          shuffleList: false,
+                          rollSlotController: _rollSlotController,
+                          children: emojiList.map(
+                                (e) {
+                              return BuildItem(
+                                emoji: e,
+                              );
+                            },
+                          ).toList()),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -171,32 +234,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Column getRollSlot() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RollSlot(
-                duration: Duration(milliseconds: 10000),
-                itemExtend: 300,
-                shuffleList: false,
-                rollSlotController: _rollSlotController,
-                children: values.map(
-                  (e) {
-                    final index = random.nextInt(emojiList.length);
-                    return BuildItem(
-                      index: e,
-                      emoji: emojiList.elementAt(index),
-                    );
-                  },
-                ).toList()),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class BuildItem extends StatelessWidget {
@@ -220,7 +257,7 @@ class BuildItem extends StatelessWidget {
       child: Center(
         child: Text(
           emoji,
-          style: TextStyle(fontSize: 100),
+          style: const TextStyle(fontSize: 100),
         ),
       ),
     );
