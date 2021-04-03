@@ -2,40 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:roll_slot_machine/roll_slot.dart';
 import 'package:roll_slot_machine/roll_slot_controller.dart';
 
-class CardsPage extends StatelessWidget {
-  List<ActivityGroup> activityGroupList = [
-    ActivityGroup(
-      name: 'Summer Friends',
-      activities: [
-        Activity(
-          name: 'Sahil Biraaa',
-          imageUrl:
-              'https://img.freepik.com/free-psd/two-beer-bottles-mockup-beach_23-2148198183.jpg?size=626&ext=jpg',
-        ),
-        Activity(
-          name: 'Yüzmee',
-          imageUrl:
-              'https://i.pinimg.com/736x/0a/7c/5c/0a7c5ce4313bb326240ee412e59fd381.jpg',
-        ),
-      ],
-    ),
-    ActivityGroup(
-      name: 'Summer Friends',
-      activities: [
-        Activity(
-          name: 'Sahil Biraaa',
-          imageUrl:
-              'https://img.freepik.com/free-psd/two-beer-bottles-mockup-beach_23-2148198183.jpg?size=626&ext=jpg',
-        ),
-        Activity(
-          name: 'Yüzmee',
-          imageUrl:
-              'https://i.pinimg.com/736x/0a/7c/5c/0a7c5ce4313bb326240ee412e59fd381.jpg',
-        ),
-      ],
-    ),
-  ];
+ValueNotifier<List<ActivityGroup>> activityGroupList = ValueNotifier([
+  ActivityGroup(
+    name: 'Summer Friends',
+    activities: [
+      Activity(
+        name: 'Sahil Biraaa',
+        imageUrl:
+            'https://img.freepik.com/free-psd/two-beer-bottles-mockup-beach_23-2148198183.jpg?size=626&ext=jpg',
+      ),
+      Activity(
+        name: 'Yüzmee',
+        imageUrl:
+            'https://i.pinimg.com/736x/0a/7c/5c/0a7c5ce4313bb326240ee412e59fd381.jpg',
+      ),
+    ],
+  ),
+  ActivityGroup(
+    name: 'Summer Friends',
+    activities: [
+      Activity(
+        name: 'Sahil Biraaa',
+        imageUrl:
+            'https://img.freepik.com/free-psd/two-beer-bottles-mockup-beach_23-2148198183.jpg?size=626&ext=jpg',
+      ),
+      Activity(
+        name: 'Yüzmee',
+        imageUrl:
+            'https://i.pinimg.com/736x/0a/7c/5c/0a7c5ce4313bb326240ee412e59fd381.jpg',
+      ),
+    ],
+  ),
+]);
 
+class CardsPage extends StatelessWidget {
   CardsPage({Key key}) : super(key: key);
 
   @override
@@ -46,7 +46,7 @@ class CardsPage extends StatelessWidget {
       ),
       body: GridView.count(
         crossAxisCount: 2,
-        children: activityGroupList
+        children: activityGroupList.value
             .map((e) => ActivityGroupCard(
                   activityGroup: e,
                 ))
@@ -57,8 +57,8 @@ class CardsPage extends StatelessWidget {
 }
 
 class ActivityGroup {
-  final String name;
-  final List<Activity> activities;
+  String name;
+  List<Activity> activities;
 
   ActivityGroup({this.name, this.activities});
 }
@@ -68,6 +68,120 @@ class Activity {
   final String imageUrl;
 
   Activity({this.name, this.imageUrl});
+}
+
+class ActivityGroupPage extends StatefulWidget {
+  final ActivityGroup activityGroup;
+
+  const ActivityGroupPage({Key key, this.activityGroup}) : super(key: key);
+
+  @override
+  _ActivityGroupPageState createState() => _ActivityGroupPageState();
+}
+
+class _ActivityGroupPageState extends State<ActivityGroupPage> {
+  bool _editTitle = true;
+
+  TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.activityGroup.name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            _editTitle
+                ? Expanded(child: Text(widget.activityGroup.name))
+                : Flexible(
+                    child: TextField(
+                      controller: _controller,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(border: InputBorder.none),
+                    ),
+                  ),
+            IconButton(
+                icon: Icon(!_editTitle ? Icons.done : Icons.edit),
+                onPressed: () {
+                  if (_editTitle) {
+                    _controller.text = widget.activityGroup.name.toString();
+                  }
+                  setState(() {
+                    _editTitle = !_editTitle;
+                  });
+                  if (_editTitle) {
+                    setState(() {
+                      widget.activityGroup.name = _controller.text;
+                    });
+                  }
+                })
+          ],
+        ),
+      ),
+      body: GridView.count(crossAxisCount: 2, children: [
+        ...widget.activityGroup.activities
+            .map((e) => ActivityCard(
+                  activity: e,
+                ))
+            .toList(),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => AddActivityPage()));
+          },
+          child: Container(
+            child: Icon(Icons.add),
+          ),
+        )
+      ]),
+    );
+  }
+}
+
+class AddActivityPage extends StatelessWidget {
+  final String id;
+  final nameController = TextEditingController();
+
+  final photoController = TextEditingController();
+
+  AddActivityPage({Key key, this.id}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: nameController,
+            ),
+            TextField(
+              controller: photoController,
+            ),
+            FlatButton(
+                onPressed: () {
+                  activityGroupList.value
+                      .where((element) => element.name == 'name')
+                      .first
+                      .activities
+                      .add(Activity(
+                        name: nameController.text,
+                        imageUrl: photoController.text,
+                      ));
+                },
+                child: Text('Add a New Activity'))
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ActivityGroupCard extends StatelessWidget {
@@ -81,8 +195,8 @@ class ActivityGroupCard extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => RandomActivityPage(
-            activities: activityGroup.activities,
+          builder: (context) => ActivityGroupPage(
+            activityGroup: activityGroup,
           ),
         ),
       ),
@@ -181,7 +295,8 @@ class _RandomActivityPageState extends State<RandomActivityPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text((_currentWidget as ActivityCard)?.activity?.name ?? 'Roll The Machine'),
+        title: Text((_currentWidget as ActivityCard)?.activity?.name ??
+            'Roll The Machine'),
       ),
       body: Center(
         child: Column(
