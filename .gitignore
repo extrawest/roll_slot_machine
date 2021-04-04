@@ -14,6 +14,7 @@
 *.ipr
 *.iws
 .idea/
+/example/.fvm/flutter_sdk/
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
@@ -73,4 +74,3 @@ build/
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-/example/.fvm/flutter_sdk/
