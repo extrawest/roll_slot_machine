@@ -538,36 +538,70 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(getText()),
       ),
       body: Center(
-        child: Row(
+        child: Stack(
           children: [
-            RollSlotWidget(
-              emojiList: emojiList,
-              rollSlotController: _rollSlotController,
+            Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                child: Row(
+                  children: [
+                    RollSlotWidget(
+                      emojiList: emojiList,
+                      rollSlotController: _rollSlotController,
+                    ),
+                    if (size.width > 500)
+                      RollSlotWidget(
+                        emojiList: emojiList,
+                        rollSlotController: _rollSlotController1,
+                      ),
+                    if (size.width > 800)
+                      RollSlotWidget(
+                        emojiList: emojiList,
+                        rollSlotController: _rollSlotController2,
+                      ),
+                    if (size.width > 1000)
+                      RollSlotWidget(
+                        emojiList: emojiList,
+                        rollSlotController: _rollSlotController3,
+                      ),
+                  ],
+                ),
+              ),
             ),
-            if (size.width > 500)
-              RollSlotWidget(
-                emojiList: emojiList,
-                rollSlotController: _rollSlotController1,
+            Align(
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Container(
+                    height: 600,
+                    decoration: BoxDecoration(
+                        border:
+                            Border.all(color: Color(0xff2f5d62), width: 50)),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-            if (size.width > 800)
-              RollSlotWidget(
-                emojiList: emojiList,
-                rollSlotController: _rollSlotController2,
-              ),
-            if (size.width > 1000)
-              RollSlotWidget(
-                emojiList: emojiList,
-                rollSlotController: _rollSlotController3,
-              ),
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _rollSlotController.animateRandomly();
-          _rollSlotController1.animateRandomly();
-          _rollSlotController2.animateRandomly();
-          _rollSlotController3.animateRandomly();
+          if (size.width > 500) _rollSlotController1.animateRandomly();
+          if (size.width > 800) _rollSlotController2.animateRandomly();
+          if (size.width > 800) _rollSlotController3.animateRandomly();
         },
         child: Icon(Icons.refresh),
       ),
@@ -601,7 +635,7 @@ class RollSlotWidget extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: RollSlot(
-                  duration: Duration(milliseconds: 10000),
+                  duration: Duration(milliseconds: 6000),
                   itemExtend: 300,
                   shuffleList: false,
                   rollSlotController: rollSlotController,
