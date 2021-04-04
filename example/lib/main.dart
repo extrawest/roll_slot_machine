@@ -49,6 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
   List<int> values = List.generate(100, (index) => index);
 
   var _rollSlotController = RollSlotController();
+  var _rollSlotController1 = RollSlotController();
+  var _rollSlotController2 = RollSlotController();
+  var _rollSlotController3 = RollSlotController();
   final random = Random();
   final List<String> emojiList = [
     '😀',
@@ -529,9 +532,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_rollSlotController.currentIndex.toString()),
+        title: Text(getText()),
       ),
       body: Center(
         child: Row(
@@ -540,14 +544,42 @@ class _MyHomePageState extends State<MyHomePage> {
               emojiList: emojiList,
               rollSlotController: _rollSlotController,
             ),
+            if (size.width > 500)
+              RollSlotWidget(
+                emojiList: emojiList,
+                rollSlotController: _rollSlotController1,
+              ),
+            if (size.width > 800)
+              RollSlotWidget(
+                emojiList: emojiList,
+                rollSlotController: _rollSlotController2,
+              ),
+            if (size.width > 1000)
+              RollSlotWidget(
+                emojiList: emojiList,
+                rollSlotController: _rollSlotController3,
+              ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _rollSlotController.animateRandomly(),
+        onPressed: () {
+          _rollSlotController.animateRandomly();
+          _rollSlotController1.animateRandomly();
+          _rollSlotController2.animateRandomly();
+          _rollSlotController3.animateRandomly();
+        },
         child: Icon(Icons.refresh),
       ),
     );
+  }
+
+  String getText() {
+    final String x = emojiList.elementAt(_rollSlotController.currentIndex) +
+        emojiList.elementAt(_rollSlotController1.currentIndex) +
+        emojiList.elementAt(_rollSlotController2.currentIndex) +
+        emojiList.elementAt(_rollSlotController3.currentIndex);
+    return x;
   }
 }
 
@@ -602,24 +634,24 @@ class BuildItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all()),
+        color: Colors.transparent,
+        boxShadow: [
+          BoxShadow(
+              color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(5, 5)),
+          BoxShadow(
+              color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(-5, -5)),
+        ],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Color(0xff2f5d62),
+        ),
+      ),
       alignment: Alignment.center,
-      child: false
-          ? Image.network(
-              'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/271/grinning-face_1f600.png',
-              height: 200,
-              width: 300,
-              fit: BoxFit.fill,
-            )
-          : Center(
-              child: Text(
-                emoji,
-                key: Key(emoji),
-                style: const TextStyle(fontSize: 100),
-              ),
-            ),
+      child: Text(
+        emoji,
+        key: Key(emoji),
+        style: const TextStyle(fontSize: 100),
+      ),
     );
   }
 }
