@@ -12,17 +12,27 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Roll Slot Machine',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: 'home',
-      home: MyHomePage(
-        title: 'deneme',
-      ),
+      onGenerateRoute: onGenerateRoute,
     );
+  }
+
+  Route onGenerateRoute(RouteSettings settings) {
+    if (settings.name == 'home') {
+      return MaterialPageRoute(
+        builder: (BuildContext context) {
+          return MyHomePage(
+            title: 'title',
+          );
+        },
+      );
+    }
   }
 }
 
