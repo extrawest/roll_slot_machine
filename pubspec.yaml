@@ -2,7 +2,7 @@ name: roll_slot_machine
 description: A flutter package for randoming widgets.
 version: 0.0.1
 homepage: https://github.com/onatcipli/roll_slot_machine.git
-author: Onat Cipli <ciplionat35@gmail.com>
+
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
