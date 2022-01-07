@@ -9,7 +9,7 @@ typedef void SelectedItemCallback({
 });
 
 class RollSlot extends StatefulWidget {
-  final RollSlotController rollSlotController;
+  final RollSlotController? rollSlotController;
 
   final List<Widget> children;
   final Duration duration;
@@ -24,7 +24,7 @@ class RollSlot extends StatefulWidget {
 
   final double squeeze;
 
-  final SelectedItemCallback onItemSelected;
+  final SelectedItemCallback? onItemSelected;
 
   final bool shuffleList;
 
@@ -33,9 +33,9 @@ class RollSlot extends StatefulWidget {
   final EdgeInsets itemPadding;
 
   const RollSlot({
-    Key key,
-    @required this.itemExtend,
-    @required this.children,
+    Key? key,
+    required this.itemExtend,
+    required this.children,
     this.rollSlotController,
     this.duration = const Duration(milliseconds: 3600),
     this.curve = Curves.elasticOut,
@@ -92,8 +92,8 @@ class _RollSlotState extends State<RollSlot> {
 
   void addRollSlotControllerListener() {
     if (widget.rollSlotController != null) {
-      widget.rollSlotController.addListener(() {
-        if (widget.rollSlotController.state ==
+      widget.rollSlotController!.addListener(() {
+        if (widget.rollSlotController!.state ==
             RollSlotControllerState.animateRandomly) {
           animateToRandomly();
         }
@@ -109,7 +109,7 @@ class _RollSlotState extends State<RollSlot> {
         final Widget currentWidget = currentList.elementAt(currentIndex);
         print('index : $currentIndex');
         if (widget.onItemSelected != null) {
-          widget.onItemSelected(
+          widget.onItemSelected!(
             currentIndex: currentIndex,
             currentWidget: currentWidget,
           );
@@ -129,7 +129,7 @@ class _RollSlotState extends State<RollSlot> {
       }
       if (widget.additionalListToEndAndStart) {
         addToCurrentList();
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
           jump();
         });
       }
@@ -145,7 +145,7 @@ class _RollSlotState extends State<RollSlot> {
       duration: widget.duration * (1 / widget.speed),
     );
     if (widget.rollSlotController != null) {
-      widget.rollSlotController.currentIndex = random % widget.children.length;
+      widget.rollSlotController!.currentIndex = random % widget.children.length;
     }
   }
 
