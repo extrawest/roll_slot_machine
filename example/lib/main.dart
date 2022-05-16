@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Route onGenerateRoute(RouteSettings settings) {
+  Route? onGenerateRoute(RouteSettings settings) {
     if (settings.name == 'home') {
       return MaterialPageRoute(
         builder: (BuildContext context) {
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -622,7 +622,8 @@ class RollSlotWidget extends StatelessWidget {
 
   final RollSlotController rollSlotController;
 
-  const RollSlotWidget({Key key, this.emojiList, this.rollSlotController})
+  const RollSlotWidget(
+      {Key? key, required this.emojiList, required this.rollSlotController})
       : super(key: key);
 
   @override
@@ -656,12 +657,10 @@ class RollSlotWidget extends StatelessWidget {
 
 class BuildItem extends StatelessWidget {
   const BuildItem({
-    Key key,
-    this.index,
-    this.emoji,
+    Key? key,
+    required this.emoji,
   }) : super(key: key);
 
-  final int index;
   final String emoji;
 
   @override
