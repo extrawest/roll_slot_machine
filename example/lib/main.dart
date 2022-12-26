@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roll_slot_machine/roll_slot_machine.dart';
 
@@ -33,6 +32,7 @@ class MyApp extends StatelessWidget {
         },
       );
     }
+    return null;
   }
 }
 
@@ -581,9 +581,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Container(
                     height: 600,
-                    decoration: BoxDecoration(
-                        border:
-                            Border.all(color: Color(0xff2f5d62), width: 50)),
+                    decoration: BoxDecoration(border: Border.all(color: Color(0xff2f5d62), width: 50)),
                   ),
                   Expanded(
                     child: Container(
@@ -622,9 +620,7 @@ class RollSlotWidget extends StatelessWidget {
 
   final RollSlotController rollSlotController;
 
-  const RollSlotWidget(
-      {Key? key, required this.emojiList, required this.rollSlotController})
-      : super(key: key);
+  const RollSlotWidget({Key? key, required this.emojiList, required this.rollSlotController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -669,10 +665,8 @@ class BuildItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         boxShadow: [
-          BoxShadow(
-              color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(5, 5)),
-          BoxShadow(
-              color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(-5, -5)),
+          BoxShadow(color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(5, 5)),
+          BoxShadow(color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(-5, -5)),
         ],
         borderRadius: BorderRadius.circular(20),
         border: Border.all(

@@ -93,8 +93,7 @@ class _RollSlotState extends State<RollSlot> {
   void addRollSlotControllerListener() {
     if (widget.rollSlotController != null) {
       widget.rollSlotController!.addListener(() {
-        if (widget.rollSlotController!.state ==
-            RollSlotControllerState.animateRandomly) {
+        if (widget.rollSlotController!.state == RollSlotControllerState.animateRandomly) {
           animateToRandomly();
         }
       });
@@ -119,7 +118,7 @@ class _RollSlotState extends State<RollSlot> {
   }
 
   void shuffleAndFillTheList() {
-    if (widget.children != null && widget.children.isNotEmpty) {
+    if (widget.children.isNotEmpty) {
       double d = (widget.duration.inMilliseconds / 100);
       if (widget.additionalListToEndAndStart) {
         addToCurrentList();
@@ -129,7 +128,7 @@ class _RollSlotState extends State<RollSlot> {
       }
       if (widget.additionalListToEndAndStart) {
         addToCurrentList();
-        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           jump();
         });
       }
@@ -174,8 +173,7 @@ class _RollSlotState extends State<RollSlot> {
   int randomIndex() {
     int randomInt;
     if (widget.additionalListToEndAndStart)
-      randomInt = widget.children.length +
-          Random().nextInt(currentList.length - widget.children.length);
+      randomInt = widget.children.length + Random().nextInt(currentList.length - widget.children.length);
     else
       randomInt = Random().nextInt(currentList.length);
     return randomInt == currentIndex ? randomIndex() : randomInt;
