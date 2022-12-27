@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class RollSlot extends StatefulWidget {
 }
 
 class _RollSlotState extends State<RollSlot> {
-  ScrollController _controller = ScrollController();
+  final FixedExtentScrollController _controller = FixedExtentScrollController(initialItem: 0);
   List<Widget> currentList = [];
   int currentIndex = 0;
 
@@ -140,12 +141,24 @@ class _RollSlotState extends State<RollSlot> {
   /// Gets the [randomIndex] an animate the [RollSlot] to that item
   Future<void> animateToRandomly({double? index}) async {
     if (widget.rollSlotController != null) {
-      await _controller.animateTo(
-        widget.rollSlotController!.index.toDouble() * widget.itemExtend,
-        curve: Curves.elasticInOut,
-        duration: widget.duration * (1 / widget.speed),
-      );
-      widget.rollSlotController!.currentIndex = widget.rollSlotController!.index % widget.children.length;
+      int counter = 0;
+      Timer.periodic(const Duration(milliseconds: 50), (timer) async {
+        await _controller.animateToItem(
+          counter,
+          curve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 50),
+        );
+        counter++;
+        if (counter == 16) {
+          counter = 0;
+        }
+      });
+      // await _controller.animateTo(
+      //   widget.rollSlotController!.index.toDouble() * widget.itemExtend,
+      //   curve: Curves.elasticInOut,
+      //   duration: widget.duration * (1 / widget.speed),
+      // );
+      //widget.rollSlotController!.currentIndex = widget.rollSlotController!.index % widget.children.length;
     }
   }
 
