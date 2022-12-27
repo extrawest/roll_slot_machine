@@ -121,28 +121,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: Container(
-                      color: Colors.white,
-                    ),
-                  ),
-                  Container(
-                    height: 600,
-                    decoration: BoxDecoration(border: Border.all(color: Color(0xff2f5d62), width: 50)),
-                  ),
-                  Expanded(
-                    child: Container(
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -197,6 +175,10 @@ class RollSlotWidget extends StatelessWidget {
                     },
                   ).toList()),
             ),
+          ),
+          TextButton(
+            onPressed: () => rollSlotController.stop(),
+            child: Text('Stop'),
           ),
         ],
       ),
