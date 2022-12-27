@@ -74,19 +74,21 @@ class _RollSlotState extends State<RollSlot> {
 
   @override
   Widget build(BuildContext context) {
-    return ListWheelScrollView(
+    return ListWheelScrollView.useDelegate(
       physics: BouncingScrollPhysics(),
       itemExtent: widget.itemExtend,
       diameterRatio: widget.diameterRation,
       controller: _controller,
       squeeze: widget.squeeze,
       perspective: widget.perspective,
-      children: currentList.map((_widget) {
-        return Padding(
-          padding: widget.itemPadding,
-          child: _widget,
-        );
-      }).toList(),
+      childDelegate: ListWheelChildLoopingListDelegate(
+        children: currentList.map((_widget) {
+          return Padding(
+            padding: widget.itemPadding,
+            child: _widget,
+          );
+        }).toList(),
+      ),
     );
   }
 
