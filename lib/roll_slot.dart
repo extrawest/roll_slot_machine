@@ -58,6 +58,8 @@ class _RollSlotState extends State<RollSlot> {
   final FixedExtentScrollController _controller = FixedExtentScrollController(initialItem: 0);
   List<Widget> currentList = [];
   int currentIndex = 0;
+  late Timer _timer;
+  bool _isStopped = false;
 
   @override
   void initState() {
@@ -98,6 +100,9 @@ class _RollSlotState extends State<RollSlot> {
       widget.rollSlotController!.addListener(() {
         if (widget.rollSlotController!.state == RollSlotControllerState.animateRandomly) {
           animateToRandomly();
+        }
+        if (widget.rollSlotController!.state == RollSlotControllerState.stopped) {
+          stopRollSlot();
         }
       });
     }
@@ -142,15 +147,25 @@ class _RollSlotState extends State<RollSlot> {
   Future<void> animateToRandomly({double? index}) async {
     if (widget.rollSlotController != null) {
       int counter = 0;
-      Timer.periodic(const Duration(milliseconds: 50), (timer) async {
-        await _controller.animateToItem(
-          counter,
-          curve: Curves.easeInOut,
-          duration: const Duration(milliseconds: 50),
-        );
-        counter++;
-        if (counter == 16) {
-          counter = 0;
+      _timer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
+        if (_isStopped) {
+          await _controller.animateToItem(
+            counter + 10,
+            curve: Curves.easeOut,
+            duration: const Duration(seconds: 2),
+          );
+          _timer.cancel();
+          _isStopped = false;
+        } else {
+          await _controller.animateToItem(
+            counter,
+            curve: Curves.linear,
+            duration: const Duration(milliseconds: 120),
+          );
+          counter++;
+          if (counter == 80) {
+            counter = 0;
+          }
         }
       });
       // await _controller.animateTo(
@@ -159,6 +174,12 @@ class _RollSlotState extends State<RollSlot> {
       //   duration: widget.duration * (1 / widget.speed),
       // );
       //widget.rollSlotController!.currentIndex = widget.rollSlotController!.index % widget.children.length;
+    }
+  }
+
+  void stopRollSlot() {
+    if (widget.rollSlotController != null) {
+      _isStopped = true;
     }
   }
 
