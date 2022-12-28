@@ -126,11 +126,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          final random = Random().nextInt(15);
-          _rollSlotController.animateRandomly(index: random);
-          if (size.width > 500) _rollSlotController1.animateRandomly(index: random);
-          if (size.width > 800) _rollSlotController2.animateRandomly(index: random);
-          if (size.width > 800) _rollSlotController3.animateRandomly(index: random);
+          _rollSlotController.animateRandomly(index: Random().nextInt(15));
+          if (size.width > 500) _rollSlotController1.animateRandomly(index: Random().nextInt(15));
+          if (size.width > 800) _rollSlotController2.animateRandomly(index: Random().nextInt(15));
+          if (size.width > 800) _rollSlotController3.animateRandomly(index: Random().nextInt(15));
         },
         child: Icon(Icons.refresh),
       ),
@@ -165,7 +164,6 @@ class RollSlotWidget extends StatelessWidget {
               child: RollSlot(
                   duration: Duration(milliseconds: 6000),
                   itemExtend: 300,
-                  shuffleList: false,
                   rollSlotController: rollSlotController,
                   children: emojiList.map(
                     (e) {
