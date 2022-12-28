@@ -61,7 +61,6 @@ class _RollSlotState extends State<RollSlot> {
   void initState() {
     shuffleAndFillTheList();
     addRollSlotControllerListener();
-    //addListenerScrollController();
     super.initState();
   }
 
@@ -74,7 +73,7 @@ class _RollSlotState extends State<RollSlot> {
   @override
   Widget build(BuildContext context) {
     return ListWheelScrollView.useDelegate(
-      onSelectedItemChanged: (index) => currentIndex = index,
+      //onSelectedItemChanged: (index) => currentIndex = index,
       physics: BouncingScrollPhysics(),
       itemExtent: widget.itemExtend,
       diameterRatio: widget.diameterRation,
@@ -105,23 +104,6 @@ class _RollSlotState extends State<RollSlot> {
     }
   }
 
-  // void addListenerScrollController() {
-  //   _controller.addListener(() {
-  //     final currentScrollPixels = _controller.position.pixels;
-  //     if (currentScrollPixels % widget.itemExtend == 0) {
-  //       currentIndex = currentScrollPixels ~/ widget.itemExtend;
-  //       final Widget currentWidget = currentList.elementAt(currentIndex);
-  //       print('index : $currentIndex');
-  //       if (widget.onItemSelected != null) {
-  //         widget.onItemSelected!(
-  //           currentIndex: currentIndex,
-  //           currentWidget: currentWidget,
-  //         );
-  //       }
-  //     }
-  //   });
-  // }
-
   void shuffleAndFillTheList() {
     if (widget.children.isNotEmpty) {
       addToCurrentList();
@@ -130,26 +112,25 @@ class _RollSlotState extends State<RollSlot> {
 
   Future<void> animate() async {
     if (widget.rollSlotController != null) {
-      int counter = 0;
       _timer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
-        int currentRollIndex = counter % widget.children.length;
+        int currentRollIndex = currentIndex % widget.children.length;
         int prizeIndex = widget.rollSlotController!.index;
         if (_isStopped && prizeIndex > currentRollIndex) {
           _controller.animateToItem(
-            prizeIndex + (counter - currentRollIndex),
+            prizeIndex + (currentIndex - currentRollIndex),
             curve: Curves.easeOut,
-            duration: Duration(milliseconds: (prizeIndex - currentRollIndex) * 120),
+            duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
           );
           _timer.cancel();
           _isStopped = false;
         } else {
           _controller.animateToItem(
-            counter,
+            currentIndex,
             curve: Curves.easeOut,
             duration: const Duration(milliseconds: 120),
           );
         }
-        counter++;
+        currentIndex++;
       });
     }
   }
