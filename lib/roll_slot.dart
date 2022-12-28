@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:roll_slot_machine/roll_slot_controller.dart';
@@ -29,8 +28,6 @@ class RollSlot extends StatefulWidget {
 
   final bool shuffleList;
 
-  final bool additionalListToEndAndStart;
-
   final EdgeInsets itemPadding;
 
   const RollSlot({
@@ -46,7 +43,6 @@ class RollSlot extends StatefulWidget {
     this.squeeze = 1.4,
     this.onItemSelected,
     this.shuffleList = true,
-    this.additionalListToEndAndStart = true,
     this.itemPadding = const EdgeInsets.all(8.0),
   }) : super(key: key);
 
@@ -65,7 +61,7 @@ class _RollSlotState extends State<RollSlot> {
   void initState() {
     shuffleAndFillTheList();
     addRollSlotControllerListener();
-    addListenerScrollController();
+    //addListenerScrollController();
     super.initState();
   }
 
@@ -78,6 +74,7 @@ class _RollSlotState extends State<RollSlot> {
   @override
   Widget build(BuildContext context) {
     return ListWheelScrollView.useDelegate(
+      onSelectedItemChanged: (index) => currentIndex = index,
       physics: BouncingScrollPhysics(),
       itemExtent: widget.itemExtend,
       diameterRatio: widget.diameterRation,
@@ -99,7 +96,7 @@ class _RollSlotState extends State<RollSlot> {
     if (widget.rollSlotController != null) {
       widget.rollSlotController!.addListener(() {
         if (widget.rollSlotController!.state == RollSlotControllerState.animateRandomly) {
-          animateToRandomly();
+          animate();
         }
         if (widget.rollSlotController!.state == RollSlotControllerState.stopped) {
           stopRollSlot();
@@ -108,72 +105,52 @@ class _RollSlotState extends State<RollSlot> {
     }
   }
 
-  void addListenerScrollController() {
-    _controller.addListener(() {
-      final currentScrollPixels = _controller.position.pixels;
-      if (currentScrollPixels % widget.itemExtend == 0) {
-        currentIndex = currentScrollPixels ~/ widget.itemExtend;
-        final Widget currentWidget = currentList.elementAt(currentIndex);
-        print('index : $currentIndex');
-        if (widget.onItemSelected != null) {
-          widget.onItemSelected!(
-            currentIndex: currentIndex,
-            currentWidget: currentWidget,
-          );
-        }
-      }
-    });
-  }
+  // void addListenerScrollController() {
+  //   _controller.addListener(() {
+  //     final currentScrollPixels = _controller.position.pixels;
+  //     if (currentScrollPixels % widget.itemExtend == 0) {
+  //       currentIndex = currentScrollPixels ~/ widget.itemExtend;
+  //       final Widget currentWidget = currentList.elementAt(currentIndex);
+  //       print('index : $currentIndex');
+  //       if (widget.onItemSelected != null) {
+  //         widget.onItemSelected!(
+  //           currentIndex: currentIndex,
+  //           currentWidget: currentWidget,
+  //         );
+  //       }
+  //     }
+  //   });
+  // }
 
   void shuffleAndFillTheList() {
     if (widget.children.isNotEmpty) {
-      double d = (widget.duration.inMilliseconds / 100);
-      if (widget.additionalListToEndAndStart) {
-        addToCurrentList();
-      }
-      while (currentList.length < d) {
-        addToCurrentList();
-      }
-      if (widget.additionalListToEndAndStart) {
-        addToCurrentList();
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          jump();
-        });
-      }
+      addToCurrentList();
     }
   }
 
-  /// Gets the [randomIndex] an animate the [RollSlot] to that item
-  Future<void> animateToRandomly({double? index}) async {
+  Future<void> animate() async {
     if (widget.rollSlotController != null) {
       int counter = 0;
       _timer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
-        if (_isStopped) {
-          await _controller.animateToItem(
-            counter + 10,
+        int currentRollIndex = counter % widget.children.length;
+        int prizeIndex = widget.rollSlotController!.index;
+        if (_isStopped && prizeIndex > currentRollIndex) {
+          _controller.animateToItem(
+            prizeIndex + (counter - currentRollIndex),
             curve: Curves.easeOut,
-            duration: const Duration(seconds: 2),
+            duration: Duration(milliseconds: (prizeIndex - currentRollIndex) * 120),
           );
           _timer.cancel();
           _isStopped = false;
         } else {
-          await _controller.animateToItem(
+          _controller.animateToItem(
             counter,
-            curve: Curves.linear,
+            curve: Curves.easeOut,
             duration: const Duration(milliseconds: 120),
           );
-          counter++;
-          if (counter == 80) {
-            counter = 0;
-          }
         }
+        counter++;
       });
-      // await _controller.animateTo(
-      //   widget.rollSlotController!.index.toDouble() * widget.itemExtend,
-      //   curve: Curves.elasticInOut,
-      //   duration: widget.duration * (1 / widget.speed),
-      // );
-      //widget.rollSlotController!.currentIndex = widget.rollSlotController!.index % widget.children.length;
     }
   }
 
@@ -202,15 +179,5 @@ class _RollSlotState extends State<RollSlot> {
   /// It is using only when the [additionalListToEndAndStart] is true.
   void jump() {
     _controller.jumpTo(widget.itemExtend * widget.children.length);
-  }
-
-  /// Returns a random number.
-  int randomIndex() {
-    int randomInt;
-    if (widget.additionalListToEndAndStart)
-      randomInt = widget.children.length + Random().nextInt(currentList.length - widget.children.length);
-    else
-      randomInt = Random().nextInt(currentList.length);
-    return randomInt == currentIndex ? randomIndex() : randomInt;
   }
 }
