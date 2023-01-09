@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 
 enum RollSlotControllerState { none, animateRandomly, stopped }
@@ -13,6 +15,8 @@ class RollSlotController extends ChangeNotifier {
 
   int get index => _index;
 
+  late Timer _stopAutomaticallyTimer;
+
   set currentIndex(int index) {
     _currentIndex = index;
     notifyListeners();
@@ -26,6 +30,14 @@ class RollSlotController extends ChangeNotifier {
     }
     _index = index;
     _state = RollSlotControllerState.animateRandomly;
+    _stopAutomaticallyTimer = Timer.periodic(const Duration(seconds: 1), (count) {
+      if (count.tick == 10) {
+        if (_state != RollSlotControllerState.stopped) {
+          stop();
+        }
+        _stopAutomaticallyTimer.cancel();
+      }
+    });
     notifyListeners();
   }
 

@@ -52,7 +52,7 @@ class _RollSlotState extends State<RollSlot> {
   final FixedExtentScrollController _controller = FixedExtentScrollController(initialItem: 0);
   List<Widget> currentList = [];
   int currentIndex = 0;
-  late Timer _timer;
+  late Timer _nextItemTimer;
   bool _isStopped = false;
 
   @override
@@ -111,27 +111,34 @@ class _RollSlotState extends State<RollSlot> {
 
   Future<void> animate() async {
     if (widget.rollSlotController != null) {
-      _timer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
-        int currentRollIndex = currentIndex % widget.children.length;
-        int prizeIndex = widget.rollSlotController!.index;
-        if (_isStopped && prizeIndex > currentRollIndex) {
-          _controller.animateToItem(
-            prizeIndex + (currentIndex - currentRollIndex),
-            curve: Curves.easeOut,
-            duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
-          );
-          _timer.cancel();
-          _isStopped = false;
-        } else {
-          _controller.animateToItem(
-            currentIndex,
-            curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 120),
-          );
-        }
-        currentIndex++;
+      _nextItemTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
+        stopSlotAtIndex(
+          currentRollIndex: currentIndex % widget.children.length,
+          prizeIndex: widget.rollSlotController!.index,
+        );
       });
     }
+  }
+
+  void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
+    int currentRollIndex = currentIndex % widget.children.length;
+    int prizeIndex = widget.rollSlotController!.index;
+    if (_isStopped && prizeIndex > currentRollIndex) {
+      _controller.animateToItem(
+        prizeIndex + (currentIndex - currentRollIndex),
+        curve: Curves.easeOut,
+        duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
+      );
+      _nextItemTimer.cancel();
+      _isStopped = false;
+    } else {
+      _controller.animateToItem(
+        currentIndex,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 120),
+      );
+    }
+    currentIndex++;
   }
 
   void stopRollSlot() {
