@@ -12,7 +12,6 @@ class RollSlot extends StatefulWidget {
   final RollSlotController? rollSlotController;
 
   final List<Widget> children;
-  final Duration duration;
   final Curve curve;
   final double speed;
 
@@ -35,12 +34,11 @@ class RollSlot extends StatefulWidget {
     required this.itemExtend,
     required this.children,
     this.rollSlotController,
-    this.duration = const Duration(milliseconds: 3600),
     this.curve = Curves.elasticOut,
     this.speed = 1.6,
     this.diameterRation = 1,
-    this.perspective = 0.002,
-    this.squeeze = 1.4,
+    this.perspective = 0.003,
+    this.squeeze = 1.225,
     this.onItemSelected,
     this.shuffleList = true,
     this.itemPadding = const EdgeInsets.all(8.0),
@@ -72,21 +70,22 @@ class _RollSlotState extends State<RollSlot> {
 
   @override
   Widget build(BuildContext context) {
-    return ListWheelScrollView.useDelegate(
-      //onSelectedItemChanged: (index) => currentIndex = index,
-      physics: BouncingScrollPhysics(),
-      itemExtent: widget.itemExtend,
-      diameterRatio: widget.diameterRation,
-      controller: _controller,
-      squeeze: widget.squeeze,
-      perspective: widget.perspective,
-      childDelegate: ListWheelChildLoopingListDelegate(
-        children: currentList.map((_widget) {
-          return Padding(
-            padding: widget.itemPadding,
-            child: _widget,
-          );
-        }).toList(),
+    return AbsorbPointer(
+      child: ListWheelScrollView.useDelegate(
+        physics: BouncingScrollPhysics(),
+        itemExtent: widget.itemExtend,
+        diameterRatio: widget.diameterRation,
+        controller: _controller,
+        squeeze: widget.squeeze,
+        perspective: widget.perspective,
+        childDelegate: ListWheelChildLoopingListDelegate(
+          children: currentList.map((_widget) {
+            return Padding(
+              padding: widget.itemPadding,
+              child: _widget,
+            );
+          }).toList(),
+        ),
       ),
     );
   }
