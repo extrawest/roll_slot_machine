@@ -62,10 +62,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<int> values = List.generate(100, (index) => index);
 
-  final _rollSlotController = RollSlotController();
-  final _rollSlotController1 = RollSlotController();
-  final _rollSlotController2 = RollSlotController();
-  final _rollSlotController3 = RollSlotController();
+  final _rollSlotController = RollSlotController(secondsBeforeStop: 10);
+  final _rollSlotController1 = RollSlotController(secondsBeforeStop: 10);
+  final _rollSlotController2 = RollSlotController(secondsBeforeStop: 10);
+  final _rollSlotController3 = RollSlotController(secondsBeforeStop: 10);
   final random = Random();
   final List<String> prizesList = [
     Assets.seventhIc,
