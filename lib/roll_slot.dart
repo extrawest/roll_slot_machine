@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:roll_slot_machine/roll_slot_controller.dart';
 
-typedef void SelectedItemCallback({
+typedef SelectedItemCallback = void Function({
   @required int currentIndex,
   @required Widget currentWidget,
 });
@@ -12,7 +12,6 @@ class RollSlot extends StatefulWidget {
   final RollSlotController? rollSlotController;
 
   final List<Widget> children;
-  final Duration duration;
   final Curve curve;
   final double speed;
 
@@ -35,12 +34,11 @@ class RollSlot extends StatefulWidget {
     required this.itemExtend,
     required this.children,
     this.rollSlotController,
-    this.duration = const Duration(milliseconds: 3600),
     this.curve = Curves.elasticOut,
     this.speed = 1.6,
     this.diameterRation = 1,
-    this.perspective = 0.002,
-    this.squeeze = 1.4,
+    this.perspective = 0.003,
+    this.squeeze = 1.225,
     this.onItemSelected,
     this.shuffleList = true,
     this.itemPadding = const EdgeInsets.all(8.0),
@@ -54,7 +52,7 @@ class _RollSlotState extends State<RollSlot> {
   final FixedExtentScrollController _controller = FixedExtentScrollController(initialItem: 0);
   List<Widget> currentList = [];
   int currentIndex = 0;
-  late Timer _timer;
+  late Timer _nextItemTimer;
   bool _isStopped = false;
 
   @override
@@ -72,21 +70,22 @@ class _RollSlotState extends State<RollSlot> {
 
   @override
   Widget build(BuildContext context) {
-    return ListWheelScrollView.useDelegate(
-      //onSelectedItemChanged: (index) => currentIndex = index,
-      physics: BouncingScrollPhysics(),
-      itemExtent: widget.itemExtend,
-      diameterRatio: widget.diameterRation,
-      controller: _controller,
-      squeeze: widget.squeeze,
-      perspective: widget.perspective,
-      childDelegate: ListWheelChildLoopingListDelegate(
-        children: currentList.map((_widget) {
-          return Padding(
-            padding: widget.itemPadding,
-            child: _widget,
-          );
-        }).toList(),
+    return AbsorbPointer(
+      child: ListWheelScrollView.useDelegate(
+        physics: BouncingScrollPhysics(),
+        itemExtent: widget.itemExtend,
+        diameterRatio: widget.diameterRation,
+        controller: _controller,
+        squeeze: widget.squeeze,
+        perspective: widget.perspective,
+        childDelegate: ListWheelChildLoopingListDelegate(
+          children: currentList.map((_widget) {
+            return Padding(
+              padding: widget.itemPadding,
+              child: _widget,
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -94,10 +93,10 @@ class _RollSlotState extends State<RollSlot> {
   void addRollSlotControllerListener() {
     if (widget.rollSlotController != null) {
       widget.rollSlotController!.addListener(() {
-        if (widget.rollSlotController!.state == RollSlotControllerState.animateRandomly) {
+        if (widget.rollSlotController!.state.isAnimateRandomly) {
           animate();
         }
-        if (widget.rollSlotController!.state == RollSlotControllerState.stopped) {
+        if (widget.rollSlotController!.state.isStopped) {
           stopRollSlot();
         }
       });
@@ -112,27 +111,32 @@ class _RollSlotState extends State<RollSlot> {
 
   Future<void> animate() async {
     if (widget.rollSlotController != null) {
-      _timer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
-        int currentRollIndex = currentIndex % widget.children.length;
-        int prizeIndex = widget.rollSlotController!.index;
-        if (_isStopped && prizeIndex > currentRollIndex) {
-          _controller.animateToItem(
-            prizeIndex + (currentIndex - currentRollIndex),
-            curve: Curves.easeOut,
-            duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
-          );
-          _timer.cancel();
-          _isStopped = false;
-        } else {
-          _controller.animateToItem(
-            currentIndex,
-            curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 120),
-          );
-        }
-        currentIndex++;
+      _nextItemTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
+        stopSlotAtIndex(
+          currentRollIndex: currentIndex % widget.children.length,
+          prizeIndex: widget.rollSlotController!.index,
+        );
       });
     }
+  }
+
+  void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
+    if (_isStopped && prizeIndex >= currentRollIndex) {
+      _controller.animateToItem(
+        prizeIndex + (currentIndex - currentRollIndex),
+        curve: Curves.easeOut,
+        duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
+      );
+      _nextItemTimer.cancel();
+      _isStopped = false;
+    } else {
+      _controller.animateToItem(
+        currentIndex,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 120),
+      );
+    }
+    currentIndex++;
   }
 
   void stopRollSlot() {

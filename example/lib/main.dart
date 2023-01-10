@@ -1,7 +1,21 @@
 import 'dart:math';
 
+import 'package:example/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:roll_slot_machine/roll_slot_machine.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:roll_slot_machine/roll_slot.dart';
+import 'package:roll_slot_machine/roll_slot_controller.dart';
+
+class Assets {
+  static const seventhIc = 'assets/images/777.svg';
+  static const cherryIc = 'assets/images/cherry.svg';
+  static const appleIc = 'assets/images/apple.svg';
+  static const barIc = 'assets/images/bar.svg';
+  static const coinIc = 'assets/images/coin.svg';
+  static const crownIc = 'assets/images/crown.svg';
+  static const lemonIc = 'assets/images/lemon.svg';
+  static const watermelonIc = 'assets/images/watermelon.svg';
+}
 
 void main() {
   runApp(MyApp());
@@ -48,28 +62,20 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<int> values = List.generate(100, (index) => index);
 
-  var _rollSlotController = RollSlotController();
-  var _rollSlotController1 = RollSlotController();
-  var _rollSlotController2 = RollSlotController();
-  var _rollSlotController3 = RollSlotController();
+  final _rollSlotController = RollSlotController(secondsBeforeStop: 10);
+  final _rollSlotController1 = RollSlotController(secondsBeforeStop: 10);
+  final _rollSlotController2 = RollSlotController(secondsBeforeStop: 10);
+  final _rollSlotController3 = RollSlotController(secondsBeforeStop: 10);
   final random = Random();
-  final List<String> emojiList = [
-    '😀',
-    '😃',
-    '😄',
-    '😁',
-    '😆',
-    '😅',
-    '🤣',
-    '😂',
-    '🙂',
-    '🙃',
-    '😉',
-    '😊',
-    '😇',
-    '🥰',
-    '😍',
-    '🤩',
+  final List<String> prizesList = [
+    Assets.seventhIc,
+    Assets.cherryIc,
+    Assets.appleIc,
+    Assets.barIc,
+    Assets.coinIc,
+    Assets.crownIc,
+    Assets.lemonIc,
+    Assets.watermelonIc,
   ];
 
   @override
@@ -84,73 +90,57 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text(getText()),
+        title: Text('Roll slot machine'),
+        centerTitle: true,
       ),
       body: Center(
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 100),
-                child: Row(
-                  children: [
-                    RollSlotWidget(
-                      emojiList: emojiList,
-                      rollSlotController: _rollSlotController,
-                    ),
-                    if (size.width > 500)
-                      RollSlotWidget(
-                        emojiList: emojiList,
-                        rollSlotController: _rollSlotController1,
-                      ),
-                    if (size.width > 800)
-                      RollSlotWidget(
-                        emojiList: emojiList,
-                        rollSlotController: _rollSlotController2,
-                      ),
-                    if (size.width > 1000)
-                      RollSlotWidget(
-                        emojiList: emojiList,
-                        rollSlotController: _rollSlotController3,
-                      ),
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            children: [
+              RollSlotWidget(
+                prizesList: prizesList,
+                rollSlotController: _rollSlotController,
               ),
-            ),
-          ],
+              RollSlotWidget(
+                prizesList: prizesList,
+                rollSlotController: _rollSlotController1,
+              ),
+              RollSlotWidget(
+                prizesList: prizesList,
+                rollSlotController: _rollSlotController2,
+              ),
+              RollSlotWidget(
+                prizesList: prizesList,
+                rollSlotController: _rollSlotController3,
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _rollSlotController.animateRandomly(index: Random().nextInt(15));
-          if (size.width > 500) _rollSlotController1.animateRandomly(index: Random().nextInt(15));
-          if (size.width > 800) _rollSlotController2.animateRandomly(index: Random().nextInt(15));
-          if (size.width > 800) _rollSlotController3.animateRandomly(index: Random().nextInt(15));
+          final index = prizesList.length * 2;
+          _rollSlotController.animateRandomly(index: Random().nextInt(index));
+          _rollSlotController1.animateRandomly(index: Random().nextInt(index));
+          _rollSlotController2.animateRandomly(index: Random().nextInt(index));
+          _rollSlotController3.animateRandomly(index: Random().nextInt(index));
         },
         child: Icon(Icons.refresh),
       ),
     );
   }
-
-  String getText() {
-    final String x = emojiList.elementAt(_rollSlotController.currentIndex) +
-        emojiList.elementAt(_rollSlotController1.currentIndex) +
-        emojiList.elementAt(_rollSlotController2.currentIndex) +
-        emojiList.elementAt(_rollSlotController3.currentIndex);
-    return x;
-  }
 }
 
 class RollSlotWidget extends StatelessWidget {
-  final List<String> emojiList;
+  final List<String> prizesList;
 
   final RollSlotController rollSlotController;
 
-  const RollSlotWidget({Key? key, required this.emojiList, required this.rollSlotController}) : super(key: key);
+  const RollSlotWidget({Key? key, required this.prizesList, required this.rollSlotController})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -159,24 +149,22 @@ class RollSlotWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Flexible(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RollSlot(
-                  duration: Duration(milliseconds: 6000),
-                  itemExtend: 300,
-                  rollSlotController: rollSlotController,
-                  children: emojiList.map(
-                    (e) {
-                      return BuildItem(
-                        emoji: e,
-                      );
-                    },
-                  ).toList()),
-            ),
+            child: RollSlot(
+                itemExtend: 115,
+                rollSlotController: rollSlotController,
+                children: prizesList.map(
+                  (e) {
+                    return BuildItem(
+                      asset: e,
+                    );
+                  },
+                ).toList()),
           ),
-          TextButton(
-            onPressed: () => rollSlotController.stop(),
-            child: Text('Stop'),
+          Flexible(
+            child: TextButton(
+              onPressed: () => rollSlotController.stop(),
+              child: Text('Stop'),
+            ),
           ),
         ],
       ),
@@ -187,10 +175,10 @@ class RollSlotWidget extends StatelessWidget {
 class BuildItem extends StatelessWidget {
   const BuildItem({
     Key? key,
-    required this.emoji,
+    required this.asset,
   }) : super(key: key);
 
-  final String emoji;
+  final String asset;
 
   @override
   Widget build(BuildContext context) {
@@ -198,19 +186,18 @@ class BuildItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         boxShadow: [
-          BoxShadow(color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(5, 5)),
-          BoxShadow(color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(-5, -5)),
+          BoxShadow(color: darkBlue1.withOpacity(.2), offset: Offset(5, 5)),
+          BoxShadow(color: darkBlue1.withOpacity(.2), offset: Offset(-5, -5)),
         ],
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Color(0xff2f5d62),
+          color: darkBlue1,
         ),
       ),
       alignment: Alignment.center,
-      child: Text(
-        emoji,
-        key: Key(emoji),
-        style: const TextStyle(fontSize: 100),
+      child: SvgPicture.asset(
+        asset,
+        key: Key(asset),
       ),
     );
   }
