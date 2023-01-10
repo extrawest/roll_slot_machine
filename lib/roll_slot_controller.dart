@@ -15,7 +15,13 @@ class RollSlotController extends ChangeNotifier {
 
   int get index => _index;
 
+  final bool isAutomaticallyStopped;
+
   late Timer _stopAutomaticallyTimer;
+
+  RollSlotController({
+    this.isAutomaticallyStopped = true,
+  });
 
   set currentIndex(int index) {
     _currentIndex = index;
@@ -30,14 +36,9 @@ class RollSlotController extends ChangeNotifier {
     }
     _index = index;
     _state = RollSlotControllerState.animateRandomly;
-    _stopAutomaticallyTimer = Timer.periodic(const Duration(seconds: 1), (count) {
-      if (count.tick == 10) {
-        if (!_state.isStopped) {
-          stop();
-        }
-        _stopAutomaticallyTimer.cancel();
-      }
-    });
+    if (isAutomaticallyStopped) {
+      setAutomaticallyStopTimer();
+    }
     notifyListeners();
   }
 
@@ -46,6 +47,17 @@ class RollSlotController extends ChangeNotifier {
       _state = RollSlotControllerState.stopped;
       notifyListeners();
     }
+  }
+
+  void setAutomaticallyStopTimer() {
+    _stopAutomaticallyTimer = Timer.periodic(const Duration(seconds: 1), (count) {
+      if (count.tick == 10) {
+        if (!_state.isStopped) {
+          stop();
+        }
+        _stopAutomaticallyTimer.cancel();
+      }
+    });
   }
 }
 
