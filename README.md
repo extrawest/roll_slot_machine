@@ -27,4 +27,5 @@ Created by Roman Ovsepian
 [Extrawest.com](https://www.extrawest.com), 2022
 
 Heavily inspired by [roll_slot_machine](https://pub.dev/packages/roll_slot_machine)
+
 ---
