@@ -42,11 +42,10 @@ class RollSlotController extends ChangeNotifier {
   }
 
   void stop() {
-    if (_state.isStopped) {
-      return;
+    if (_state.isAnimateRandomly) {
+      _state = RollSlotControllerState.stopped;
+      notifyListeners();
     }
-    _state = RollSlotControllerState.stopped;
-    notifyListeners();
   }
 }
 
