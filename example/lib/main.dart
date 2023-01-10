@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:example/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roll_slot_machine/roll_slot.dart';
@@ -185,12 +186,12 @@ class BuildItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         boxShadow: [
-          BoxShadow(color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(5, 5)),
-          BoxShadow(color: Color(0xff2f5d62).withOpacity(.2), offset: Offset(-5, -5)),
+          BoxShadow(color: darkBlue1.withOpacity(.2), offset: Offset(5, 5)),
+          BoxShadow(color: darkBlue1.withOpacity(.2), offset: Offset(-5, -5)),
         ],
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Color(0xff2f5d62),
+          color: darkBlue1,
         ),
       ),
       alignment: Alignment.center,
