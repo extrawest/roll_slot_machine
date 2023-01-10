@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:roll_slot_machine/roll_slot_controller.dart';
 
-typedef void SelectedItemCallback({
+typedef SelectedItemCallback = void Function({
   @required int currentIndex,
   @required Widget currentWidget,
 });

@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:roll_slot_machine/roll_slot_machine.dart';
+import 'package:roll_slot_machine/roll_slot.dart';
+import 'package:roll_slot_machine/roll_slot_controller.dart';
 
 class Assets {
   static const seventhIc = 'assets/images/777.svg';
@@ -60,10 +61,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<int> values = List.generate(100, (index) => index);
 
-  var _rollSlotController = RollSlotController();
-  var _rollSlotController1 = RollSlotController();
-  var _rollSlotController2 = RollSlotController();
-  var _rollSlotController3 = RollSlotController();
+  final _rollSlotController = RollSlotController();
+  final _rollSlotController1 = RollSlotController();
+  final _rollSlotController2 = RollSlotController();
+  final _rollSlotController3 = RollSlotController();
   final random = Random();
   final List<String> prizesList = [
     Assets.seventhIc,
