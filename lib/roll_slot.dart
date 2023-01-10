@@ -93,10 +93,10 @@ class _RollSlotState extends State<RollSlot> {
   void addRollSlotControllerListener() {
     if (widget.rollSlotController != null) {
       widget.rollSlotController!.addListener(() {
-        if (widget.rollSlotController!.state == RollSlotControllerState.animateRandomly) {
+        if (widget.rollSlotController!.state.isAnimateRandomly) {
           animate();
         }
-        if (widget.rollSlotController!.state == RollSlotControllerState.stopped) {
+        if (widget.rollSlotController!.state.isStopped) {
           stopRollSlot();
         }
       });
@@ -121,9 +121,7 @@ class _RollSlotState extends State<RollSlot> {
   }
 
   void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
-    int currentRollIndex = currentIndex % widget.children.length;
-    int prizeIndex = widget.rollSlotController!.index;
-    if (_isStopped && prizeIndex > currentRollIndex) {
+    if (_isStopped && prizeIndex >= currentRollIndex) {
       _controller.animateToItem(
         prizeIndex + (currentIndex - currentRollIndex),
         curve: Curves.easeOut,

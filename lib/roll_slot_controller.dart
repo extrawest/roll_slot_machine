@@ -25,14 +25,14 @@ class RollSlotController extends ChangeNotifier {
   int get currentIndex => _currentIndex;
 
   void animateRandomly({required int index}) {
-    if (_state == RollSlotControllerState.animateRandomly) {
+    if (_state.isAnimateRandomly) {
       return;
     }
     _index = index;
     _state = RollSlotControllerState.animateRandomly;
     _stopAutomaticallyTimer = Timer.periodic(const Duration(seconds: 1), (count) {
       if (count.tick == 10) {
-        if (_state != RollSlotControllerState.stopped) {
+        if (!_state.isStopped) {
           stop();
         }
         _stopAutomaticallyTimer.cancel();
@@ -42,7 +42,16 @@ class RollSlotController extends ChangeNotifier {
   }
 
   void stop() {
+    if (_state.isStopped) {
+      return;
+    }
     _state = RollSlotControllerState.stopped;
     notifyListeners();
   }
+}
+
+extension RollSlotControllerStateExt on RollSlotControllerState {
+  bool get isNone => this == RollSlotControllerState.none;
+  bool get isAnimateRandomly => this == RollSlotControllerState.animateRandomly;
+  bool get isStopped => this == RollSlotControllerState.stopped;
 }
