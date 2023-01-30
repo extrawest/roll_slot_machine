@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:infinite_carousel/infinite_carousel.dart';
 import 'package:roll_slot_machine/roll_slot_controller.dart';
 
 typedef SelectedItemCallback = void Function({
@@ -49,11 +50,16 @@ class RollSlot extends StatefulWidget {
 }
 
 class _RollSlotState extends State<RollSlot> {
-  final FixedExtentScrollController _controller = FixedExtentScrollController(initialItem: 0);
+  final ScrollController _controller = ScrollController();
+  final InfiniteScrollController _infiniteScrollController = InfiniteScrollController();
+
   List<Widget> currentList = [];
   int currentIndex = 0;
-  late Timer _nextItemTimer;
   bool _isStopped = false;
+
+  late Timer _nextItemTimer;
+
+  final List<GlobalKey> _globalKeys = [];
 
   @override
   void initState() {
@@ -65,27 +71,25 @@ class _RollSlotState extends State<RollSlot> {
   @override
   void dispose() {
     _controller.dispose();
+    _infiniteScrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      child: ListWheelScrollView.useDelegate(
+      absorbing: false,
+      child: InfiniteCarousel.builder(
         physics: BouncingScrollPhysics(),
         itemExtent: widget.itemExtend,
-        diameterRatio: widget.diameterRation,
-        controller: _controller,
-        squeeze: widget.squeeze,
-        perspective: widget.perspective,
-        childDelegate: ListWheelChildLoopingListDelegate(
-          children: currentList.map((_widget) {
-            return Padding(
-              padding: widget.itemPadding,
-              child: _widget,
-            );
-          }).toList(),
-        ),
+        controller: _infiniteScrollController,
+        itemCount: widget.children.length,
+        axisDirection: Axis.vertical,
+        itemBuilder: (context, index, realIndex) {
+          return Container(
+            child: widget.children[index % widget.children.length],
+          );
+        },
       ),
     );
   }
@@ -122,7 +126,14 @@ class _RollSlotState extends State<RollSlot> {
 
   void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
     if (_isStopped && prizeIndex >= currentRollIndex) {
-      _controller.animateToItem(
+      final indexScrollTo = prizeIndex + (currentIndex - currentRollIndex);
+      // if (_globalKeys[indexScrollTo].currentContext != null) {
+      //   _controller.position.ensureVisible(
+      //     _globalKeys[indexScrollTo].currentContext!.findRenderObject()!,
+      //     duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
+      //   );
+      // }
+      _infiniteScrollController.animateToItem(
         prizeIndex + (currentIndex - currentRollIndex),
         curve: Curves.easeOut,
         duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
@@ -130,13 +141,21 @@ class _RollSlotState extends State<RollSlot> {
       _nextItemTimer.cancel();
       _isStopped = false;
     } else {
-      _controller.animateToItem(
+      // _controller.position.ensureVisible(
+      //   _globalKeys[currentIndex].currentContext!.findRenderObject()!,
+      //   duration: const Duration(milliseconds: 120),
+      // );
+      _infiniteScrollController.animateToItem(
         currentIndex,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 120),
       );
     }
-    currentIndex++;
+    if (currentIndex >= widget.children.length) {
+      currentIndex = 0;
+    } else {
+      currentIndex++;
+    }
   }
 
   void stopRollSlot() {
