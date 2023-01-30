@@ -9,6 +9,9 @@ typedef SelectedItemCallback = void Function({
   @required Widget currentWidget,
 });
 
+// after hitting this index it will reset to zero
+const maxIndex = 50000;
+
 class RollSlot extends StatefulWidget {
   final RollSlotController? rollSlotController;
 
@@ -58,8 +61,6 @@ class _RollSlotState extends State<RollSlot> {
   bool _isStopped = false;
 
   late Timer _nextItemTimer;
-
-  final List<GlobalKey> _globalKeys = [];
 
   @override
   void initState() {
@@ -126,13 +127,6 @@ class _RollSlotState extends State<RollSlot> {
 
   void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
     if (_isStopped && prizeIndex >= currentRollIndex) {
-      final indexScrollTo = prizeIndex + (currentIndex - currentRollIndex);
-      // if (_globalKeys[indexScrollTo].currentContext != null) {
-      //   _controller.position.ensureVisible(
-      //     _globalKeys[indexScrollTo].currentContext!.findRenderObject()!,
-      //     duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
-      //   );
-      // }
       _infiniteScrollController.animateToItem(
         prizeIndex + (currentIndex - currentRollIndex),
         curve: Curves.easeOut,
@@ -141,17 +135,13 @@ class _RollSlotState extends State<RollSlot> {
       _nextItemTimer.cancel();
       _isStopped = false;
     } else {
-      // _controller.position.ensureVisible(
-      //   _globalKeys[currentIndex].currentContext!.findRenderObject()!,
-      //   duration: const Duration(milliseconds: 120),
-      // );
       _infiniteScrollController.animateToItem(
         currentIndex,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 120),
       );
     }
-    if (currentIndex >= widget.children.length) {
+    if (currentIndex >= maxIndex) {
       currentIndex = 0;
     } else {
       currentIndex++;
