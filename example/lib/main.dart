@@ -122,11 +122,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          final index = prizesList.length * 2;
-          _rollSlotController.animateRandomly(index: Random().nextInt(index));
-          _rollSlotController1.animateRandomly(index: Random().nextInt(index));
-          _rollSlotController2.animateRandomly(index: Random().nextInt(index));
-          _rollSlotController3.animateRandomly(index: Random().nextInt(index));
+          final index = prizesList.length - 1;
+          final firstRandom = Random().nextInt(index);
+          _rollSlotController.animateRandomly(
+              topIndex: firstRandom, centerIndex: 2, bottomIndex: 3);
+          _rollSlotController1.animateRandomly(
+              topIndex: Random().nextInt(index), centerIndex: 2, bottomIndex: 3);
+          _rollSlotController2.animateRandomly(
+              topIndex: Random().nextInt(index), centerIndex: 2, bottomIndex: 3);
+          _rollSlotController3.animateRandomly(
+              topIndex: Random().nextInt(index), centerIndex: 2, bottomIndex: 3);
         },
         child: Icon(Icons.refresh),
       ),

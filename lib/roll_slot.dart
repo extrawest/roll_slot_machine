@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:infinite_carousel/infinite_carousel.dart';
@@ -58,6 +59,7 @@ class _RollSlotState extends State<RollSlot> {
 
   List<Widget> currentList = [];
   int currentIndex = 0;
+  int _stopIndex = 0;
   bool _isStopped = false;
 
   late Timer _nextItemTimer;
@@ -87,8 +89,12 @@ class _RollSlotState extends State<RollSlot> {
         itemCount: widget.children.length,
         axisDirection: Axis.vertical,
         itemBuilder: (context, index, realIndex) {
+          if (index == _stopIndex) {
+            return widget.children[widget.rollSlotController!.centerIndex];
+          }
+          final random = Random().nextInt(widget.children.length - 1);
           return Container(
-            child: widget.children[index % widget.children.length],
+            child: widget.children[random], //index % widget.children.length],
           );
         },
       ),
@@ -119,7 +125,7 @@ class _RollSlotState extends State<RollSlot> {
       _nextItemTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
         stopSlotAtIndex(
           currentRollIndex: currentIndex % widget.children.length,
-          prizeIndex: widget.rollSlotController!.index,
+          prizeIndex: widget.rollSlotController!.topIndex,
         );
       });
     }
