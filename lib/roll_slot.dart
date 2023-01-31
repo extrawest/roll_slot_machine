@@ -54,13 +54,16 @@ class RollSlot extends StatefulWidget {
 }
 
 class _RollSlotState extends State<RollSlot> {
-  final ScrollController _controller = ScrollController();
   final InfiniteScrollController _infiniteScrollController = InfiniteScrollController();
 
   List<Widget> currentList = [];
   int currentIndex = 0;
   int _stopIndex = 0;
   bool _isStopped = false;
+
+  int topTemporaryIndex = 0;
+  int centerTemporaryIndex = 0;
+  int bottomTemporaryIndex = 0;
 
   late Timer _nextItemTimer;
 
@@ -73,7 +76,6 @@ class _RollSlotState extends State<RollSlot> {
 
   @override
   void dispose() {
-    _controller.dispose();
     _infiniteScrollController.dispose();
     super.dispose();
   }
@@ -89,13 +91,32 @@ class _RollSlotState extends State<RollSlot> {
         itemCount: widget.children.length,
         axisDirection: Axis.vertical,
         itemBuilder: (context, index, realIndex) {
-          if (index == _stopIndex) {
-            return widget.children[widget.rollSlotController!.centerIndex];
+          if (widget.rollSlotController!.state.isStopped) {
+            if (realIndex == _stopIndex) {
+              centerTemporaryIndex = widget.rollSlotController!.centerIndex;
+              return widget.children[widget.rollSlotController!.centerIndex];
+            } else if (realIndex == _stopIndex - 1) {
+              topTemporaryIndex = widget.rollSlotController!.topIndex;
+              return widget.children[widget.rollSlotController!.topIndex];
+            } else if (realIndex == _stopIndex + 1) {
+              bottomTemporaryIndex = widget.rollSlotController!.bottomIndex;
+              return widget.children[widget.rollSlotController!.bottomIndex];
+            } else {
+              final random = Random().nextInt(widget.children.length - 1);
+              return Container(child: widget.children[random]);
+            }
+          } else {
+            if (realIndex == _stopIndex) {
+              return widget.children[centerTemporaryIndex];
+            } else if (realIndex == _stopIndex - 1) {
+              return widget.children[topTemporaryIndex];
+            } else if (realIndex == _stopIndex + 1) {
+              return widget.children[bottomTemporaryIndex];
+            } else {
+              final random = Random().nextInt(widget.children.length - 1);
+              return Container(child: widget.children[random]);
+            }
           }
-          final random = Random().nextInt(widget.children.length - 1);
-          return Container(
-            child: widget.children[random], //index % widget.children.length],
-          );
         },
       ),
     );
@@ -125,18 +146,18 @@ class _RollSlotState extends State<RollSlot> {
       _nextItemTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
         stopSlotAtIndex(
           currentRollIndex: currentIndex % widget.children.length,
-          prizeIndex: widget.rollSlotController!.topIndex,
         );
       });
     }
   }
 
-  void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
-    if (_isStopped && prizeIndex >= currentRollIndex) {
+  void stopSlotAtIndex({required int currentRollIndex}) {
+    if (_isStopped) {
+      _stopIndex = currentIndex + 10;
       _infiniteScrollController.animateToItem(
-        prizeIndex + (currentIndex - currentRollIndex),
+        _stopIndex,
         curve: Curves.easeOut,
-        duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
+        duration: Duration(milliseconds: 20 * 120),
       );
       _nextItemTimer.cancel();
       _isStopped = false;
@@ -172,12 +193,5 @@ class _RollSlotState extends State<RollSlot> {
         currentList.addAll(widget.children.toList());
       }
     });
-  }
-
-  /// Helping to jump the first item that can be random.
-  ///
-  /// It is using only when the [additionalListToEndAndStart] is true.
-  void jump() {
-    _controller.jumpTo(widget.itemExtend * widget.children.length);
   }
 }
