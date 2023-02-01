@@ -92,20 +92,25 @@ class _RollSlotState extends State<RollSlot> {
         axisDirection: Axis.vertical,
         itemBuilder: (context, index, realIndex) {
           if (widget.rollSlotController!.state.isStopped) {
+            /// we build "winning" items on the specific indexes(top, center, bottom)
+            /// only when rollSlotController is stopped
+            /// we don't need to build especially them when slot is rolling
             if (realIndex == _stopIndex) {
               centerTemporaryIndex = widget.rollSlotController!.centerIndex;
-              return widget.children[widget.rollSlotController!.centerIndex];
+              return widget.children[centerTemporaryIndex];
             } else if (realIndex == _stopIndex - 1) {
               topTemporaryIndex = widget.rollSlotController!.topIndex;
-              return widget.children[widget.rollSlotController!.topIndex];
+              return widget.children[topTemporaryIndex];
             } else if (realIndex == _stopIndex + 1) {
               bottomTemporaryIndex = widget.rollSlotController!.bottomIndex;
-              return widget.children[widget.rollSlotController!.bottomIndex];
+              return widget.children[bottomTemporaryIndex];
             } else {
               final random = Random().nextInt(widget.children.length - 1);
               return Container(child: widget.children[random]);
             }
           } else {
+            /// this logic is necessary to avoid rebuilding previous
+            /// top, center and bottom items, when user start to roll slot again
             if (realIndex == _stopIndex) {
               return widget.children[centerTemporaryIndex];
             } else if (realIndex == _stopIndex - 1) {
