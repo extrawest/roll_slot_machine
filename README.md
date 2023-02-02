@@ -24,8 +24,6 @@
 
 https://user-images.githubusercontent.com/117409513/216299725-161b3f32-a822-47ff-8549-6b0a4851999b.mp4
 
-https://user-images.githubusercontent.com/42183561/212683869-5d9a4010-7652-495e-9139-4c9caa3299fe.mp4
-
 
 Created by Roman Ovsepian
 
