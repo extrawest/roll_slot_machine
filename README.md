@@ -11,6 +11,7 @@
 - **Package is properly working on Android, iOS and WEB**
 
 
+
 ## Features
 
 - Unlimited number of slots
@@ -18,8 +19,10 @@
 - Stop each slot separately manually
 - Set automatic stop duration
 
+
 ## Demo
 
+https://user-images.githubusercontent.com/117409513/216299725-161b3f32-a822-47ff-8549-6b0a4851999b.mp4
 
 
 Created by Roman Ovsepian
