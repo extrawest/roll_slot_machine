@@ -166,6 +166,7 @@ class _RollSlotState extends State<RollSlot> {
       );
       _nextItemTimer.cancel();
       _isStopped = false;
+      currentIndex = _stopIndex;
     } else {
       _infiniteScrollController.animateToItem(
         currentIndex,
