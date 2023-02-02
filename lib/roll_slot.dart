@@ -18,19 +18,8 @@ class RollSlot extends StatefulWidget {
 
   final List<Widget> children;
   final Curve curve;
-  final double speed;
-
-  final double diameterRation;
 
   final double itemExtend;
-
-  final double perspective;
-
-  final double squeeze;
-
-  final SelectedItemCallback? onItemSelected;
-
-  final bool shuffleList;
 
   final EdgeInsets itemPadding;
 
@@ -39,13 +28,7 @@ class RollSlot extends StatefulWidget {
     required this.itemExtend,
     required this.children,
     this.rollSlotController,
-    this.curve = Curves.elasticOut,
-    this.speed = 1.6,
-    this.diameterRation = 1,
-    this.perspective = 0.003,
-    this.squeeze = 1.225,
-    this.onItemSelected,
-    this.shuffleList = true,
+    this.curve = Curves.easeOut,
     this.itemPadding = const EdgeInsets.all(8.0),
   }) : super(key: key);
 
@@ -56,7 +39,6 @@ class RollSlot extends StatefulWidget {
 class _RollSlotState extends State<RollSlot> {
   final InfiniteScrollController _infiniteScrollController = InfiniteScrollController();
 
-  List<Widget> currentList = [];
   int currentIndex = 0;
   int _stopIndex = 0;
   bool _isStopped = false;
@@ -69,7 +51,6 @@ class _RollSlotState extends State<RollSlot> {
 
   @override
   void initState() {
-    shuffleAndFillTheList();
     addRollSlotControllerListener();
     super.initState();
   }
@@ -140,12 +121,6 @@ class _RollSlotState extends State<RollSlot> {
     }
   }
 
-  void shuffleAndFillTheList() {
-    if (widget.children.isNotEmpty) {
-      addToCurrentList();
-    }
-  }
-
   Future<void> animate() async {
     if (widget.rollSlotController != null) {
       _nextItemTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
@@ -166,10 +141,11 @@ class _RollSlotState extends State<RollSlot> {
       );
       _nextItemTimer.cancel();
       _isStopped = false;
+      currentIndex = _stopIndex;
     } else {
       _infiniteScrollController.animateToItem(
         currentIndex,
-        curve: Curves.easeOut,
+        curve: widget.curve,
         duration: const Duration(milliseconds: 120),
       );
     }
@@ -184,19 +160,5 @@ class _RollSlotState extends State<RollSlot> {
     if (widget.rollSlotController != null) {
       _isStopped = true;
     }
-  }
-
-  /// When [additionalListToEndAndStart] is true,
-  /// This method adds the [widget.children] to beginning and end of the list
-  ///
-  /// for being able to show items if the random number hits edge cases
-  void addToCurrentList() {
-    setState(() {
-      if (widget.shuffleList) {
-        currentList.addAll(widget.children.toList()..shuffle());
-      } else {
-        currentList.addAll(widget.children.toList());
-      }
-    });
   }
 }
