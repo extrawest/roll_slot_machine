@@ -9,8 +9,6 @@ class RollSlotController extends ChangeNotifier {
 
   RollSlotControllerState get state => _state;
 
-  int _currentIndex = 0;
-
   int _topIndex = 0;
   int _centerIndex = 0;
   int _bottomIndex = 0;
@@ -26,13 +24,6 @@ class RollSlotController extends ChangeNotifier {
   RollSlotController({
     this.secondsBeforeStop,
   });
-
-  set currentIndex(int index) {
-    _currentIndex = index;
-    notifyListeners();
-  }
-
-  int get currentIndex => _currentIndex;
 
   void animateRandomly({
     required int topIndex,
