@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:infinite_carousel/infinite_carousel.dart';
 import 'package:roll_slot_machine/roll_slot_controller.dart';
 
 typedef SelectedItemCallback = void Function({
   @required int currentIndex,
   @required Widget currentWidget,
 });
+
+// after hitting this index it will reset to zero
+const maxIndex = 50000;
 
 class RollSlot extends StatefulWidget {
   final RollSlotController? rollSlotController;
@@ -49,11 +54,18 @@ class RollSlot extends StatefulWidget {
 }
 
 class _RollSlotState extends State<RollSlot> {
-  final FixedExtentScrollController _controller = FixedExtentScrollController(initialItem: 0);
+  final InfiniteScrollController _infiniteScrollController = InfiniteScrollController();
+
   List<Widget> currentList = [];
   int currentIndex = 0;
-  late Timer _nextItemTimer;
+  int _stopIndex = 0;
   bool _isStopped = false;
+
+  int topTemporaryIndex = 0;
+  int centerTemporaryIndex = 0;
+  int bottomTemporaryIndex = 0;
+
+  late Timer _nextItemTimer;
 
   @override
   void initState() {
@@ -64,28 +76,53 @@ class _RollSlotState extends State<RollSlot> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _infiniteScrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      child: ListWheelScrollView.useDelegate(
+      absorbing: false,
+      child: InfiniteCarousel.builder(
         physics: BouncingScrollPhysics(),
         itemExtent: widget.itemExtend,
-        diameterRatio: widget.diameterRation,
-        controller: _controller,
-        squeeze: widget.squeeze,
-        perspective: widget.perspective,
-        childDelegate: ListWheelChildLoopingListDelegate(
-          children: currentList.map((_widget) {
-            return Padding(
-              padding: widget.itemPadding,
-              child: _widget,
-            );
-          }).toList(),
-        ),
+        controller: _infiniteScrollController,
+        itemCount: widget.children.length,
+        axisDirection: Axis.vertical,
+        itemBuilder: (context, index, realIndex) {
+          if (widget.rollSlotController!.state.isStopped) {
+            /// we build "winning" items on the specific indexes(top, center, bottom)
+            /// only when rollSlotController is stopped
+            /// we don't need to build especially them when slot is rolling
+            if (realIndex == _stopIndex) {
+              centerTemporaryIndex = widget.rollSlotController!.centerIndex;
+              return widget.children[centerTemporaryIndex];
+            } else if (realIndex == _stopIndex - 1) {
+              topTemporaryIndex = widget.rollSlotController!.topIndex;
+              return widget.children[topTemporaryIndex];
+            } else if (realIndex == _stopIndex + 1) {
+              bottomTemporaryIndex = widget.rollSlotController!.bottomIndex;
+              return widget.children[bottomTemporaryIndex];
+            } else {
+              final random = Random().nextInt(widget.children.length - 1);
+              return Container(child: widget.children[random]);
+            }
+          } else {
+            /// this logic is necessary to avoid rebuilding previous
+            /// top, center and bottom items, when user start to roll slot again
+            if (realIndex == _stopIndex) {
+              return widget.children[centerTemporaryIndex];
+            } else if (realIndex == _stopIndex - 1) {
+              return widget.children[topTemporaryIndex];
+            } else if (realIndex == _stopIndex + 1) {
+              return widget.children[bottomTemporaryIndex];
+            } else {
+              final random = Random().nextInt(widget.children.length - 1);
+              return Container(child: widget.children[random]);
+            }
+          }
+        },
       ),
     );
   }
@@ -114,29 +151,33 @@ class _RollSlotState extends State<RollSlot> {
       _nextItemTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) async {
         stopSlotAtIndex(
           currentRollIndex: currentIndex % widget.children.length,
-          prizeIndex: widget.rollSlotController!.index,
         );
       });
     }
   }
 
-  void stopSlotAtIndex({required int currentRollIndex, required int prizeIndex}) {
-    if (_isStopped && prizeIndex >= currentRollIndex) {
-      _controller.animateToItem(
-        prizeIndex + (currentIndex - currentRollIndex),
+  void stopSlotAtIndex({required int currentRollIndex}) {
+    if (_isStopped) {
+      _stopIndex = currentIndex + 10;
+      _infiniteScrollController.animateToItem(
+        _stopIndex,
         curve: Curves.easeOut,
-        duration: Duration(milliseconds: (prizeIndex - currentRollIndex + 10) * 120),
+        duration: Duration(milliseconds: 20 * 120),
       );
       _nextItemTimer.cancel();
       _isStopped = false;
     } else {
-      _controller.animateToItem(
+      _infiniteScrollController.animateToItem(
         currentIndex,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 120),
       );
     }
-    currentIndex++;
+    if (currentIndex >= maxIndex) {
+      currentIndex = 0;
+    } else {
+      currentIndex++;
+    }
   }
 
   void stopRollSlot() {
@@ -157,12 +198,5 @@ class _RollSlotState extends State<RollSlot> {
         currentList.addAll(widget.children.toList());
       }
     });
-  }
-
-  /// Helping to jump the first item that can be random.
-  ///
-  /// It is using only when the [additionalListToEndAndStart] is true.
-  void jump() {
-    _controller.jumpTo(widget.itemExtend * widget.children.length);
   }
 }

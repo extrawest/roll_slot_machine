@@ -11,9 +11,13 @@ class RollSlotController extends ChangeNotifier {
 
   int _currentIndex = 0;
 
-  int _index = 0;
+  int _topIndex = 0;
+  int _centerIndex = 0;
+  int _bottomIndex = 0;
 
-  int get index => _index;
+  int get centerIndex => _centerIndex;
+  int get bottomIndex => _bottomIndex;
+  int get topIndex => _topIndex;
 
   final int? secondsBeforeStop;
 
@@ -30,11 +34,18 @@ class RollSlotController extends ChangeNotifier {
 
   int get currentIndex => _currentIndex;
 
-  void animateRandomly({required int index}) {
+  void animateRandomly({
+    required int topIndex,
+    required int centerIndex,
+    required int bottomIndex,
+  }) {
     if (_state.isAnimateRandomly) {
       return;
     }
-    _index = index;
+    _topIndex = topIndex;
+    _centerIndex = centerIndex;
+    _bottomIndex = bottomIndex;
+
     _state = RollSlotControllerState.animateRandomly;
     if (secondsBeforeStop != null) {
       _setAutomaticallyStopTimer(secondsBeforeStop!);
